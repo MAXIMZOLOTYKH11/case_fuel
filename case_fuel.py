@@ -1,12 +1,11 @@
 import random
 
 
-def t(i):
-    l = int(i['li'])
-    if (l % 10) == 0:
-        t_1 = int(l // 10)
+def time(l):
+    if (l%10) == 0:
+        t_1 = int(l//10)
     else:
-        t_1 = int(l // 10) + 1
+        t_1 = int(l//10) + 1
     a1 = [-1, 0, 1]
     a = random.choice(a1)
     time = t_1 + a
@@ -14,99 +13,134 @@ def t(i):
         time = 1
     return time
 
+cc = 1500
+cl = 0
 
-def azs(car, kolonki, counter, auto1, auto2, auto3):  # {'time1': '00:01', 'li': 10, 'fuel': 'АИ-80'}
-    automat = car['fuel']  # АИ-80, azs.txt, 1
-    if counter == 1:
-        auto1 += 1
-    elif counter == 2:
-        auto2 += 1
-    if counter == 3:
-        auto3 += 1
-    c = 0
-    for i in kolonki:
-        c += 1
-        if c == 1:
-            print('Автомат №' + i[0] + ';', 'максимальная очередь:', i[2] + ';', 'Марки бензина:', i[4:], '->' + auto1 * '*')
-        if c == 2:
-            print('Автомат №' + i[0] + ';', 'максимальная очередь:', i[2] + ';', 'Марки бензина:', i[4:], '->' + auto2 * '*')
-        if c == 3:
-            print('Автомат №' + i[0] + ';', 'максимальная очередь:', i[2] + ';', 'Марки бензина:', i[4:], '->' + auto3 * '*')
-    a1 = auto1
-    a2 = auto2
-    a3 = auto3
-    return a1,a2,a3
+fuels = {}
+with open('azs.txt') as f_a:
+    fuels_0 = f_a.readlines()
+
+for i in fuels_0:
+    i = i.split(' ')
+    i1 = i[2:]
+    a = []
+    b = 0
+    for e in i1:
+        ei = e[-1]
+        eii = ei.isdigit()
+        if eii == 0:
+            e = e[:-1]
+            e = e[:]
+        a.append(e)
+    # a = tuple(a)
+    fuels[i[0]] = [int(i[1]), b, a, []]
+
+with open('input.txt') as f_i:
+    cars_0 = f_i.readlines()
+
+for i in cars_0:
+
+    i = i.split(' ')
+    time_60 = (int(i[0][0:2]))*60 + int(i[0][3:5])
+
+    l = int(i[1])
+    t = time(l)
+    i[1] = t
+
+    i2 = i[2]
+    i22 = i2[-1]
+    iii = i22.isdigit()
+    if iii == 0:
+        i[2] = i[2][:-1]
+
+    for x in fuels:
+        for y in fuels[x][3]:
+            if y <= time_60:
+               fuels[x][3].remove(y)
+               fuels[x][1] += -1
 
 
-def main():
-    # price_d = {'АИ-80': '34', 'АИ-92': '41', 'АИ-95': '43.9', 'АИ-98': '48.1'}
-    with open('input.txt') as f_in1:
-        text1 = f_in1.readlines()
-        car_list = []
-        for i in text1:
-            car = i.split()
-            d = {}
-            d['time1'] = car[0]
-            d['li'] = car[1]
-            d['fuel'] = car[2]
-            car_list.append(d)  # создали список(car_list) из словарей(d) машин
+    kol = float('inf')
+    sp = []
+    for e in fuels:
+        j = fuels[e]
+        for w in j[2]:
+            if w == i[2]:
+                sp.append(e)
+    sp_n = []
+    for d in sp:
+        fd = fuels[d]
+        if fd[1] < kol:
+            kol = fd[1]
+    for d in sp:
+        fd = fuels[d]
+        if fd[1] == kol:
+            sp_n.append(d)
+    sp_nn = []
+    for d in sp_n:
+        fd = fuels[d]
+        if fd[1] < fd[0]:
+            sp_nn.append(d)
+    num = float('inf')
+    for d in sp_nn:
+        d = int(d)
+        if d < num:
+            num = d
+    if num == float('inf'):
+        cl += 1
+        print(i[0], 'машина покинула заправку бла-бла-бла')
+        for h in fuels:
+            print(fuels[h])
 
-    with open('azs.txt') as f_in2:
-        kolonki = f_in2.readlines()
-
-    # car = {'time1': '00:01', 'li': 10, 'fuel': 'АИ-80'}
-    count = 0
-    auto1 = 0
-    auto2 = 0
-    auto3 = 0
-    g = None
-    for i in car_list:
-        print(i)
-        counter = 1
-        go = 100
-        cc = 0
-        go = int(i['time1'][3:]) + t(i)
-        for r in kolonki:
-            if i['fuel'] in r:
-                # azs(i, kolonki, counter, auto1, auto2, auto3)
-                if go < int(i['time1'][3:]):
-                    print('В', '00:'+str(go), 'клиент', car_list[cc]['time1'], car_list[cc]['fuel'], car_list[cc]['li'],'заправил свой автомобиль и покинул АЗС.')
-                    cc += 1
-                else:
-                    print('В', i['time1'], 'новый клиент:', i['time1'], i['fuel'], i['li'], t(i), 'встал в очередь к автомату №' + str(counter))
-                    if counter == 1:
-                        auto1 += 1
-                    elif counter == 2:
-                        auto2 += 1
-                    if counter == 3:
-                        auto3 += 1
-                    c = 0
-                    for l in kolonki:
-                        c += 1
-                        if c == 1:
-                            print('Автомат №' + l[0] + ';', 'максимальная очередь:', l[2] + ';', 'Марки бензина:', l[4:],
-                                  '->' + auto1 * '*')
-                        if c == 2:
-                            print('Автомат №' + l[0] + ';', 'максимальная очередь:', l[2] + ';', 'Марки бензина:', l[4:],
-                                  '->' + auto2 * '*')
-                        if c == 3:
-                            print('Автомат №' + l[0] + ';', 'максимальная очередь:', l[2] + ';', 'Марки бензина:', l[4:],
-                                  '->' + auto3 * '*')
-                    go = int(i['time1'][3:]) + t(i)
-                    g = i
+    else:
+        num = str(num)
+        fuels[num][1] += 1
+        if len(fuels[num][3]) == 0:  #время в очереди (все время)
+            to = time_60 + i[1]
+        else:
+            m = max(fuels[num][3])
+            to = m + i[1]
+        fuels[num][3].append(to)
+        t = int(to) - int(time_60)
+        if int(time_60) <= cc:
+            print('В', i[0], 'новый клиент:', i[0], i[2], i[1], t, 'встал в очередь к автомату', '№' + num)
+            cc = int(time_60) + int(t)
+            for h in fuels:
+                trew = 'Автомат № ' + str(h) + ';', 'максимальная очередь: ', str(fuels[h][0]), ';', 'Марки бензина:', \
+                       str(fuels[h][2]) + '->', int(fuels[h][1]) * '*'
+                print(*trew)
+        else:
+            new_gr_88 = (int(gr[4:]) + cc)
+            new_gr = round(new_gr_88 / 60, 1)
+            new_gr_int = int(new_gr)
+            new_gr_min = int(round(new_gr % 1, 1) * 60)
+            # print(new_gr_min)
+            # print(new_gr_int)  # целые часы
+            # print(new_gr)  # переведенные часы с минутыми
+            if new_gr_int == 0:
+                print('В', '0' + str(new_gr_int) + ':' + str(new_gr_min), 'клиент', gr, 'заправил свой автомобиль и покинул АЗС')
+            elif new_gr_int == 0 and len(str(new_gr_min)) == 1:
+                print('В', '0' + str(new_gr_int) + ':' + '0' + str(new_gr_min), 'клиент', gr, 'заправил свой автомобиль и покинул АЗС')
+            elif len(str(new_gr_int)) == 1:
+                print('В', '0' + str(new_gr_int) + ':' + str(new_gr_min), 'клиент', gr, 'заправил свой автомобиль и покинул АЗС')
+            elif len(str(new_gr_int)) == 1 and len(str(new_gr_min)) == 1:
+                print('В', '0' + str(new_gr_int) + ':' + '0' + str(new_gr_min), 'клиент', gr, 'заправил свой автомобиль и покинул АЗС')
             else:
-                counter += 1
-        count += 1
-        print('____________________________________________________________________________')
-        print()
-        # if count == 1:
-        #     continue
-        # else:
-        #     car['time1'] = i[0]
-        #     car['li'] = i[2]
-        #     # car[i[4]] = price_d[i[2]]
-        # l += car['li']
+                print('В', str(new_gr_int) + ':' + str(new_gr_min), 'клиент', gr, 'заправил свой автомобиль и покинул АЗС')
+            cc = 1500
+            for h in k:
+                trew = 'Автомат № ' + str(h) + ';', 'максимальная очередь: ', str(k[h][0]), ';', 'Марки бензина:', \
+                       str(k[h][2]) + '->', (int(k[h][1]) - 1) * '*'
+                print(*trew)
+            print('В', i[0], 'новый клиент:', i[0], i[2], i[1], t, 'встал в очередь к автомату', '№' + num)
+            cc = int(time_60) + int(t)
+            for h in fuels:
+                trew = 'Автомат № ' + str(h) + ';', 'максимальная очередь: ', str(fuels[h][0]), ';', 'Марки бензина:', \
+                       str(fuels[h][2]) + '->', int(fuels[h][1]) * '*'
+                print(*trew)
 
+        k = fuels
+        gr = i[0]
+                # print(fuels[h])
 
-if __name__ == "__main__":
-    main()
+print("Сколько машин уехало не заправившись:", cl)
